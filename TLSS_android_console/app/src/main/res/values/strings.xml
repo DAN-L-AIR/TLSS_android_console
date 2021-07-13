@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">TLSS_android_console</string>
+    <string name="testTemperatureMessge">25 degres C</string>
+    <string name="load1">load1</string>
+    <string name="load2">load2</string>
+    <string name="load3">load3</string>
+    <string name="load4">load4</string>
+    <string name="load5">load5</string>
+    <string name="load6">load6</string>
+    <string name="load7">load7</string>
+    <string name="load8">load8</string>
+    <string name="btDeviceSelectRext">Применить</string>
+    <string name="SelectModeRadioGroupHeader">Режим</string>
+    <string name="setDirectModeRadioButtonCaption">Пульт</string>
+    <string name="setServerModeRadioButtonCaption">Сервер</string>
+    <string name="setClientModeRadioButtonCaption">Клиент</string>
+    <string name="btDevicesListHeader">BT-устройства</string>
+</resources>
