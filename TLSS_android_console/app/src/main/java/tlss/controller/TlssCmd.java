@@ -18,29 +18,37 @@ public class TlssCmd implements iTlssCmd, Comparable<TlssCmd>, Serializable {
     public static final String BT_BAD_ADDRESS = "Недопустимый блютуз адрес";
     public static final String BT_SOCKET_ERROR = "Ошибка создания сокета блютуз";
     public static final String BT_CONNECTION_ERROR = "Ошибка блютуз-подключения к контроллеру";
-    static final String UUID_STRING_WELL_KNOWN_SPP = "00001101-0000-1000-8000-00805F9B34FB";
-    static final byte GRANULARITY_TIME_MS = 5;      // Минимальная величина отсчёта времени, в милисекундах
+
     private static final String BT_NOT_INITIALISED = "Блютуз не инициализирован";
     private static final String BT_CLOSE_ERROR = "Ошибка закрытия блютуз сокета";
     private static final String BT_STREAMS_CREATION = "Ошибка создания потоков ввода/вывода";
     private static final String CONNECTION_SUCCESFULL = "TLSS контроллер подключён";
+    private static final String BT_SEND_ERROR = "Ошибка передачи команды";
+    private static final String BT_RECEIVE_TIMEOUT = "Тайм-аут приёма";
+    private static final String BT_BAD_ANSWER_1 = "Ошибка приёма 1";// превышена длина ответа
+    private static final String BT_BAD_ANSWER_2 = "Ошибка приёма 2";// не  совпадает код принятой/отправленной команд
+    private static final String UNKNOW_COMMAND = "Команда не поддерживается контроллером";
+
+    static final String UUID_STRING_WELL_KNOWN_SPP = "00001101-0000-1000-8000-00805F9B34FB";
+    static final byte GRANULARITY_TIME_MS = 5;      // Минимальная величина отсчёта времени, в милисекундах
+
     static final private List<String> BtDeviceNames = new ArrayList<>();
     static final private List<String> BtDeviceMACs = new ArrayList<>();
     static int id_ = 0;
     static private InputStream connectedInputStream = null;
     static private OutputStream connectedOutputStream = null;
-    // ошибка возникшая при инициализации соединения
-    static private String connectionMessge = "";
-    static private BluetoothAdapter btAdapter = null;
-    static private BluetoothDevice btDevice = null;
-    static private BluetoothSocket btSocket = null;
+
+    private static  String connectionMessge = "";
+    private static  BluetoothAdapter btAdapter = null;
+    private static  BluetoothDevice btDevice = null;
+    private static  BluetoothSocket btSocket = null;
     private static String LogFilePath = "";
 
     byte cmd;
     int id;
     byte answerLen;
     byte answer[] = null;
-    String error;
+    String error = "";
     int priority;
 
     public TlssCmd() {
@@ -187,16 +195,17 @@ public class TlssCmd implements iTlssCmd, Comparable<TlssCmd>, Serializable {
     }
 
     static public boolean LogtoFile(String mes) {
-        if (!LogFilePath.isEmpty()) {
-            try (FileWriter fileWriter = new FileWriter(LogFilePath, true)) {
-                fileWriter.write(String.format("[%s] %s\r", new Date(), mes));
-            } catch (IOException e) {
-                return false;
-            }
-            return true;
-        }else{
-            return false;
-        }
+//        if (!LogFilePath.isEmpty()) {
+//            try (FileWriter fileWriter = new FileWriter(LogFilePath, true)) {
+//                fileWriter.write(String.format("[%s] %s\r", new Date(), mes));
+//            } catch (IOException e) {
+//                return false;
+//            }
+//            return true;
+//        }else{
+//            return false;
+//        }
+        return  true;
     }
 
     //@Override
@@ -205,7 +214,7 @@ public class TlssCmd implements iTlssCmd, Comparable<TlssCmd>, Serializable {
         try {
             connectedOutputStream.write(cmd);
         } catch (IOException e) {
-            error = "Command write error";
+            error = BT_SEND_ERROR;;
             result = false;
         }
         return result;
@@ -218,7 +227,7 @@ public class TlssCmd implements iTlssCmd, Comparable<TlssCmd>, Serializable {
         try {
             while (connectedInputStream.available() < answerLen) {
                 if (System.currentTimeMillis() > endTimeMS) {
-                    error = "Read command answer timeout";
+                    error = BT_RECEIVE_TIMEOUT;
                     return false;
                 }
                 try {
@@ -227,14 +236,14 @@ public class TlssCmd implements iTlssCmd, Comparable<TlssCmd>, Serializable {
                 }
             }
             if (connectedInputStream.available() > answerLen) {
-                error = "Command answer length is too long";
+                error = BT_BAD_ANSWER_1;
             } else if (connectedInputStream.read() != cmd) {
-                error = "Echo byte not matched";
+                error = BT_BAD_ANSWER_2;
             } else {
                 byte secondByte = (byte) connectedInputStream.read();
                 byte status = (byte) (secondByte & CMD_STATUS_MASK);
                 if (status == CMD_IS_INVALID) {
-                    error = "Command is not recognized by controller";
+                    error = UNKNOW_COMMAND;
                 } else if (answerLen == 2) {
                     result = true;
                 } else {

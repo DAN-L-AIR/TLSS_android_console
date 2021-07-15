@@ -171,7 +171,6 @@ public class ConnectActivity extends AppCompatActivity {
         settings.Clear();
     }
 
-
     private boolean InitBt() {
         int count = 0;
         while (!TlssCmd.InitBtAdapter()) {

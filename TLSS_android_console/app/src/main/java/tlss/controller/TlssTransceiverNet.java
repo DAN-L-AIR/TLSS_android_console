@@ -38,7 +38,7 @@ public class TlssTransceiverNet extends TlssTransceiverBase {
     }
 
     public String GetError(){
-        TlssCmd.LogtoFile(String.format("TlssTransceiverNet: %s",error));
+//        TlssCmd.LogtoFile(String.format("TlssTransceiverNet: %s",error));
         return error;
     }
 

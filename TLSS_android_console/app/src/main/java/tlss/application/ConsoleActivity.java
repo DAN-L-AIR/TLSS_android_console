@@ -9,8 +9,11 @@ import com.example.tlss_android_console.R;
 import tlss.controller.*;
 
 import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+
+import static tlss.application.TlssMode.tlssModeServer;
 
 public class ConsoleActivity extends AppCompatActivity {
     // цвета 'задника' кнопок
@@ -61,21 +64,21 @@ public class ConsoleActivity extends AppCompatActivity {
 
         InitDisplay(tlssTransceiver);
 
-//        timer = new Timer("TLSS commands generation timer");
-//        if(settings.GetTlssMode() != tlssModeServer) {
-//            timer.schedule(new TimerTask() {
-//                @Override
-//                public void run() {
-//                    tlssTransceiver.AddCmd(new TlssGetTemperatureCmd());
-//                }
-//            }, 0, UPDATE_TEMP_TIME_MS);
-//            timer.schedule(new TimerTask() {
-//                @Override
-//                public void run() {
-//                    tlssTransceiver.AddCmd(new TlssGetStateCmd());
-//                }
-//            }, 0, UPDATE_STATE_TIME_MS);
-//        }
+        timer = new Timer("TLSS commands generation timer");
+        if(settings.GetTlssMode() != tlssModeServer) {
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    tlssTransceiver.AddCmd(new TlssGetTemperatureCmd());
+                }
+            }, 0, UPDATE_TEMP_TIME_MS);
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    tlssTransceiver.AddCmd(new TlssGetStateCmd());
+                }
+            }, 0, UPDATE_STATE_TIME_MS);
+        }
     }
 
     @Override
